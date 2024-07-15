@@ -21,6 +21,7 @@ PRODUCT_KEY = "XXXXXXXXXXXXXXXXXXXXXX"
 说明：通信使用的秘钥，用于连接到物联网平台，直接问管理员获取即可；
 
 _G.appkey = "XXXXXXXXXXXX"
+
 _G.secretkey = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
 
 
@@ -34,6 +35,7 @@ _G.version = "0.0.1"
 说明：mqtt地址和端口，用于连接到物联网平台，直接问管理员获取即可；
 
 _G.mqttserverip = "XXXXXXXXXXXX"
+
 _G.mqttserverport = xxxx
 
 
@@ -48,7 +50,9 @@ _G.mqttserverport = xxxx
 
 ### 实物图片
 ![image](https://github.com/fairycloudpublic/FairyCloud_AIR780EGRL_PUBLIC/blob/main/photo1.png)
+
 ![image](https://github.com/fairycloudpublic/FairyCloud_AIR780EGRL_PUBLIC/blob/main/photo2.png)
+
 ![image](https://github.com/fairycloudpublic/FairyCloud_AIR780EGRL_PUBLIC/blob/main/photo3.png)
 
 
