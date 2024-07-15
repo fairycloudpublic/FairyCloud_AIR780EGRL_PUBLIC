@@ -7,32 +7,41 @@ FairyCloud_AIR780EGRL_PUBLIC/code/
 
 
 ### 配置文件目录
-FairyCloud_AIR780EGRL_PUBLIC/code/config.h
+FairyCloud_AIR780EGRL_PUBLIC/code/projectConfig.lua
 
 
 ### 配置文件说明
-1.你的设备CID，17位设备编码
+1.PRODUCT_KEY
+说明：用于硬件FOTA升级，不用合宙的FOTA可以不做设置；自行到 iot.openluat.com 创建项目,获取正确的项目id；
 
-unsigned char SRCCID[] = {"SXXXXXXXXXXXXXXXX"};
+PRODUCT_KEY = "XXXXXXXXXXXXXXXXXXXXXX"
 
-2.填写你的WiFi名称和密码，示例的WiFi名称 Fariy    密码 qwerty123
 
-unsigned char netConfig[] = "AT+CWJAP=\"Fariy\",\"qwerty123\"\r\n\0";
+2.appkey、secretkey
+说明：通信使用的秘钥，用于连接到物联网平台，直接问管理员获取即可；
 
-3.填写32位openid，平台管理员直接提供给你！
+_G.appkey = "XXXXXXXXXXXX"
+_G.secretkey = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
 
-unsigned char SRCOPENID[] = {"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"};
 
-4.填写服务器的IP和端口，平台管理员直接提供给你！
+3.version
+说明：当前软件的版本号，自行设置/修改；
 
-unsigned char TcpServer[] = "AT+CIPSTART=\"TCP\",\"xxxxxxxxxxxxxxxxx\",xxxxx\r\n\0";
-unsigned char SaveTcpServer[] = "AT+SAVETRANSLINK=1,\"xxxxxxxxxxxxxxxxx\",xxxxx,\"TCP\"\r\n\0";
+_G.version = "0.0.1"
+
+
+4.mqttserverip、mqttserverport
+说明：mqtt地址和端口，用于连接到物联网平台，直接问管理员获取即可；
+
+_G.mqttserverip = "XXXXXXXXXXXX"
+_G.mqttserverport = xxxx
+
 
 
 ## 示例教程
 
 ### 实物演示
-[【AIR780EG定位器，小程序远程查看-哔哩哔哩】](https://b23.tv/LC0sZ2T)
+[【AIR780EG定位器，小程序/web远程查看-哔哩哔哩】](https://b23.tv/LC0sZ2T)
 
 ### 说明文档
 [【外部】精灵物联网各项目汇总](https://gv9jqt8gpcb.feishu.cn/docx/DAJGdExvZoZBA3xuAogc53ohnxg?from=from_copylink)
