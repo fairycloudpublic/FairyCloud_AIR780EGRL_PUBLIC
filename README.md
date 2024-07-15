@@ -14,21 +14,26 @@ FairyCloud_AIR780EGRL_PUBLIC/code/projectConfig.lua
 #### 1.PRODUCT_KEY
 说明：用于硬件FOTA升级，不用合宙的FOTA可以不做设置；自行到 iot.openluat.com 创建项目,获取正确的项目id；
 
+目录：FairyCloud_AIR780EGRL_PUBLIC/code/fota.lua
+
 PRODUCT_KEY = "XXXXXXXXXXXXXXXXXXXXXX"
 
 
-#### 2.appkey、secretkey
+#### 2.VERSION
+说明：当前软件的版本号，自行设置/修改；
+
+目录：FairyCloud_AIR780EGRL_PUBLIC/code/main.lua
+
+_G.VERSION = "1.0.5"
+
+
+#### 3.appkey、secretkey
 说明：通信使用的秘钥，用于连接到物联网平台，直接问管理员获取即可；
 
 _G.appkey = "XXXXXXXXXXXX"
 
 _G.secretkey = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
 
-
-#### 3.version
-说明：当前软件的版本号，自行设置/修改；
-
-_G.version = "0.0.1"
 
 
 #### 4.mqttserverip、mqttserverport
