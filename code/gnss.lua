@@ -1,5 +1,6 @@
 -- LuaTools需要PROJECT和VERSION这两个信息
 -- PROJECT = "gnsstest"
+-- VERSION = "1.0.1"
 
 -- sys库是标配
 local sys = require("sys")
@@ -17,8 +18,7 @@ local gps_uart_id = 2
 local mqttc = nil
 
 
-sslat="35.7777777"
-sslng="120.7777777"
+
 
 
 
@@ -131,8 +131,8 @@ function lbsLoc()
             log.info("-------------------->>基站定位失败,放弃上传数据!!!<<----------------------") 
         else     
             data_from="LBS"
-            sslat=lbs_lat 
-            sslng=lbs_lng
+            _G.sslat=lbs_lat 
+            _G.sslng=lbs_lng
             sys.publish(_G.GPS_Ggt_Topic)
             sys.waitUntil(_G.Updata_OK,10*1000)
             log.info("------------>lbsLoc2", lbs_lat, lbs_lat, (json.encode(t or {})))
@@ -206,8 +206,8 @@ sys.taskInit(function()
             local latt=lat/10000000--除法，保留小数--//除法，只保留整数
             local lngg=lng/10000000
 
-            sslat=json.encode(latt)
-            sslng=json.encode(lngg)
+            _G.sslat=json.encode(latt)
+            _G.sslng=json.encode(lngg)
             
             -- local slat1=lat//10000000
             -- local slng1=lng//10000000
@@ -228,8 +228,8 @@ sys.taskInit(function()
             -- sslng=json.encode(lngg)
 
             log.info("-------------------->>以下打印的是经纬度的字符串形式<<----------------------") 
-            log.info("sslat------->",sslat)
-            log.info("sslng------->",sslng)
+            log.info("sslat------->",_G.sslat)
+            log.info("sslng------->",_G.sslng)
 
             log.info("-------------------->>GPS定位成功！！！<<----------------------") 
             data_from="GPS"

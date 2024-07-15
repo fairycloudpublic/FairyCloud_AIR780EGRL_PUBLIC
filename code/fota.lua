@@ -5,7 +5,7 @@
 ]]
 
 -- 使用合宙iot平台时需要这个参数
-PRODUCT_KEY = "XXXXXXXXXXXXXXXXXXXXXX" -- 到 iot.openluat.com 创建项目,获取正确的项目id
+PRODUCT_KEY = "7ZMjnOzEGsYGJ1bVgavwdeKD28lqjgC0" -- 到 iot.openluat.com 创建项目,获取正确的项目id  官方教程https://doc.openluat.com/wiki/37?wiki_page_id=4578
 
 sys = require "sys"
 libfota = require "libfota"

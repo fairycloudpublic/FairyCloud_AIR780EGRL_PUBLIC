@@ -1,7 +1,6 @@
 -- LuaTools需要PROJECT和VERSION这两个信息
 PROJECT = "Locators"
-VERSION = "1.0.5"
-
+_G.VERSION = "1.0.5"
 --[[
 本demo需要mqtt库, 大部分能联网的设备都具有这个库
 mqtt也是内置库, 无需require
