@@ -30,6 +30,8 @@ _G.VERSION = "1.0.5"
 #### 3.appkey、secretkey
 说明：通信使用的秘钥，用于连接到物联网平台，直接问管理员获取即可；
 
+目录：FairyCloud_AIR780EGRL_PUBLIC/code/projectConfig.lua
+
 _G.appkey = "XXXXXXXXXXXX"
 
 _G.secretkey = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
@@ -38,6 +40,8 @@ _G.secretkey = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
 
 #### 4.mqttserverip、mqttserverport
 说明：mqtt地址和端口，用于连接到物联网平台，直接问管理员获取即可；
+
+目录：FairyCloud_AIR780EGRL_PUBLIC/code/projectConfig.lua
 
 _G.mqttserverip = "XXXXXXXXXXXX"
 
