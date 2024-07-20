@@ -32,6 +32,16 @@ local function cbFnc(body)
                 _G.appkey = data["appkey"];
                 _G.secretkey = data["secretkey"];
 
+                _G.project = data["project"];
+                _G.projectkey = data["projectkey"];
+
+                _G.deviceid_auth = data["cid"];
+                _G.username_auth = data["cid"];
+                _G.password_auth = _G.projectkey ;
+
+
+
+
                 log.info('SRCCID',SRCCID )
 
             else
@@ -164,7 +174,7 @@ sys.taskInit(function()
             local sign =  string.lower (crypto.md5(str6,#str6))
             log.info("sign:",sign)
 
-            local str = string.format('https://fairycloud.xyz/device/api/getDeviceByMac?appkey=%s&did=%s&mac=%s&nonce=%s&projectkey=%s&signt=%s&version=%s&sign=%s',appkey,did,mac,nonce,projectkey,signt,version,sign)
+            local str = string.format('%s?appkey=%s&did=%s&mac=%s&nonce=%s&projectkey=%s&signt=%s&version=%s&sign=%s',server_api,appkey,did,mac,nonce,projectkey,signt,version,sign)
             log.info("str:",str)
 
             -- http.request("GET",str,nil,nil,nil,nil,cbFnc)
@@ -183,9 +193,12 @@ sys.taskInit(function()
             local imei = mobile.imei()
             log.info('imeia',imei)
 
+            --_G.mqttc = mqtt.create(nil, mqttserverip, mqttserverport, false, ca_file)
             _G.mqttc = mqtt.create(nil, mqttserverip, mqttserverport, false, ca_file)
+
          
-            mqttc:auth(SRC2C2WLB00000025,Gunter,qwerty123) -- client_id必填,其余选填
+            --mqttc:auth(SRC2C2WLB00000025,Gunter,qwerty123) -- client_id必填,其余选填
+            mqttc:auth(deviceid_auth,username_auth,password_auth,true) --JSR1454DMY
             mqttc:keepalive(60) -- 默认值240s
             mqttc:autoreconn(true, 6000) -- 自动重连机制
 

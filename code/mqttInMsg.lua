@@ -19,7 +19,7 @@ local function insertMsg(topic,payload,qos,user)
     sys.taskInit(function()
         if mqttc and mqttc:ready() then
             local pkgid = mqttc:publish(mqtt_pub_topicsss..SRCCID, payload, 0)
-            sys.timerStart(autoDataStatus,10000)   --10S上报一次
+            sys.timerStart(autoDataStatus,10000)  
             sys.waitUntil(_G.GPS_Ggt_Topic,10*1000)  
             sys.publish(_G.Updata_OK)
         end
@@ -151,8 +151,8 @@ function autoDataStatus()
         tjsondata["sign"] = sign;
         tjsondata["version"] = version;
 
-        tjsondata["temperature"] = "25.4";
 
+        tjsondata["temperature"] = "25.4";
 
         tjsondata["longitude"] = _G.sslng;
         tjsondata["latitude"] = _G.sslat;
