@@ -1,11 +1,14 @@
--- 以下五个参数必须配置
-_G.server_api = "XXX" 		--服务器信息，联系平台管理员获取
+-- 以下7个参数必须配置
+_G.appkey = "XXX"					--用户的appkey，联系平台管理员获取
+_G.secretkey = "XXX"				--用户的secretkey,联系平台管理员获取
+_G.project = "XXX"					--项目编码，或者联系平台管理员获取
+_G.projectkey = "XXX"				--项目key，或者联系平台管理员获取 
 
-_G.appkey = "XXX"			--用户的appkey，联系平台管理员获取
-_G.secretkey = "XXX"		--用户的secretkey,联系平台管理员获取
 
-_G.mqttserverip = "XXX"		--MQTT 地址,联系平台管理员获取
-_G.mqttserverport = XXX		--MQTT 端口,联系平台管理员获取
+_G.server_api = "XXX" 				--服务器信息，联系平台管理员获取
+_G.mqttserverip = "XXX"				--MQTT 地址,联系平台管理员获取
+_G.mqttserverport = XXX				--MQTT 端口,联系平台管理员获取
+
 
 
 
@@ -15,8 +18,6 @@ _G.deviceid_auth=""		--与设备CID一致，程序自动获取，或者进入平
 _G.username_auth=""		--与设备CID一致，程序自动获取，或者进入平台点击编辑设备查看
 _G.password_auth=""		--与projectkey一致，程序自动获取，或者进入平台点击编辑设备查看
 
-_G.project = ""			--项目编码，程序自动获取，或者联系平台管理员获取
-_G.projectkey = ""		--项目key，程序自动获取，或者联系平台管理员获取 
 
 
 -- MQTT的TOPIC 不需要改动

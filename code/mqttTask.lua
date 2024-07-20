@@ -32,14 +32,9 @@ local function cbFnc(body)
                 _G.appkey = data["appkey"];
                 _G.secretkey = data["secretkey"];
 
-                _G.project = data["project"];
-                _G.projectkey = data["projectkey"];
-
                 _G.deviceid_auth = data["cid"];
                 _G.username_auth = data["cid"];
                 _G.password_auth = _G.projectkey ;
-
-
 
 
                 log.info('SRCCID',SRCCID )
