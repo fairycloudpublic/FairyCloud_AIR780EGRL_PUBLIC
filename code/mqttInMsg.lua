@@ -121,10 +121,7 @@ function autoDataStatus()
     
     
         tjsondata["deviceid"] = SRCCID;
-        tjsondata["project"] = project;
-		tjsondata["projectkey"] = projectkey;
         tjsondata["cid"] = SRCCID;
-        tjsondata["password"] = projectkey;
 
         local reporttime=os.date("%Y-%m-%d %H:%M:%S")
         local times=os.date("%Y-%m-%d %H:%M:%S")
@@ -139,27 +136,26 @@ function autoDataStatus()
         -- 新增签名算法
         local did = string.lower(crypto.md5(reporttime.."0"..random(1000)))
         local cid = SRCCID
-        local nonce = string.lower(crypto.md5(reporttime.."0"..random(1000)))
-        local signt= dataToTimeStamp(times) .. "000"
-        local str6 =  did.."_"..cid.."_"..nonce.."_"..signt.."_"..appkey.."_"..secretkey
-        local sign =  string.lower (crypto.md5(str6,#str6))
+        -- local nonce = string.lower(crypto.md5(reporttime.."0"..random(1000)))
+        -- local signt= dataToTimeStamp(times) .. "000"
+        -- local str6 =  did.."_"..cid.."_"..nonce.."_"..signt.."_"..appkey.."_"..secretkey
+        -- local sign =  string.lower (crypto.md5(str6,#str6))
 		
-        tjsondata["appkey"] = appkey;
+        -- tjsondata["appkey"] = appkey;
+        -- tjsondata["nonce"] = nonce;
+        -- tjsondata["signt"] = signt;
+        -- tjsondata["sign"] = sign;
+        -- tjsondata["temperature"] = "25.4";
+
+        -- tjsondata["version"] = version;
         tjsondata["did"] = did;
-        tjsondata["nonce"] = nonce;
-        tjsondata["signt"] = signt;
-        tjsondata["sign"] = sign;
-        tjsondata["version"] = version;
-
-
-        tjsondata["temperature"] = "25.4";
 
         tjsondata["longitude"] = _G.sslng;
         tjsondata["latitude"] = _G.sslat;
         tjsondata["log"] = locc;
         tjsondata["data_from"]=data_from;
         tjsondata["electricity"]=svbat;
-        tjsondata["version"]=_G.VERSION;
+        tjsondata["version"]= _G.VERSION;
      
     else
         log.info("testJson error",errinfo)

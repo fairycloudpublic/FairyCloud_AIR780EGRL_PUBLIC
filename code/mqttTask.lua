@@ -28,13 +28,13 @@ local function cbFnc(body)
             if status then
                 -- body
                 local  data = tjsondata["data"]
-                _G.SRCCID = data["cid"];
-                _G.appkey = data["appkey"];
-                _G.secretkey = data["secretkey"];
 
-                _G.deviceid_auth = data["cid"];
-                _G.username_auth = data["cid"];
-                _G.password_auth = _G.projectkey ;
+                _G.SRCCID = data["cid"];
+                _G.mqtt_mqttClientId = data["mqttClientId"];
+                _G.mqtt_username = data["username"];
+                _G.mqtt_passwd = data["passwd"];
+                _G.mqtt_mqttHostUrl = data["mqttHostUrl"];
+                _G.mqtt_port = data["port"];
 
 
                 log.info('SRCCID',SRCCID )
@@ -159,7 +159,7 @@ sys.taskInit(function()
 
             local signt= dataToTimeStamp(reporttime) .. "000"
 
-            local str5 = "api/getDeviceByMac_appkey=" .. appkey.."_did=".. did.. "_mac=" .. mac .."_nonce="..nonce.."_projectkey="..projectkey.. "_signt="..signt.."_version=".. version.."_".. secretkey;
+            local str5 = "api/getDeviceByMac_appkey=" .. appkey.."_did=".. did.. "_mac=" .. mac .."_nonce="..nonce.."_signt="..signt.."_version=".. version.."_".. secretkey;
             
             log.info("str5:",str5)
 
@@ -169,7 +169,7 @@ sys.taskInit(function()
             local sign =  string.lower (crypto.md5(str6,#str6))
             log.info("sign:",sign)
 
-            local str = string.format('%s?appkey=%s&did=%s&mac=%s&nonce=%s&projectkey=%s&signt=%s&version=%s&sign=%s',server_api,appkey,did,mac,nonce,projectkey,signt,version,sign)
+            local str = string.format('%s?appkey=%s&did=%s&mac=%s&nonce=%s&signt=%s&version=%s&sign=%s',server_api,appkey,did,mac,nonce,signt,version,sign)
             log.info("str:",str)
 
             -- http.request("GET",str,nil,nil,nil,nil,cbFnc)
@@ -188,12 +188,12 @@ sys.taskInit(function()
             local imei = mobile.imei()
             log.info('imeia',imei)
 
-            --_G.mqttc = mqtt.create(nil, mqttserverip, mqttserverport, false, ca_file)
-            _G.mqttc = mqtt.create(nil, mqttserverip, mqttserverport, false, ca_file)
+            --_G.mqttc = mqtt.create(nil, mqtt_mqttHostUrl, mqtt_port, false, ca_file)
+            _G.mqttc = mqtt.create(nil, mqtt_mqttHostUrl, mqtt_port, false, ca_file)
 
          
             --mqttc:auth(SRC2C2WLB00000025,Gunter,qwerty123) -- client_id必填,其余选填
-            mqttc:auth(deviceid_auth,username_auth,password_auth,true) --JSR1454DMY
+            mqttc:auth(mqtt_mqttClientId,mqtt_username,mqtt_passwd,true) --JSR1454DMY
             mqttc:keepalive(60) -- 默认值240s
             mqttc:autoreconn(true, 6000) -- 自动重连机制
 
