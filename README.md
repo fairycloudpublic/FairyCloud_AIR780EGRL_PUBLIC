@@ -14,6 +14,7 @@ FairyCloud_AIR780EGRL_PUBLIC/code/
 目录：FairyCloud_AIR780EGRL_PUBLIC/code/projectConfig.lua
 
 -- 以下3个参数必须配置
+
 _G.server_api = "" 	--服务器信息，联系平台管理员获取
 
 _G.appkey = ""			--用户的appkey，联系平台管理员获取
