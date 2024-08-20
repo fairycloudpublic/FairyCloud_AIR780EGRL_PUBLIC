@@ -38,7 +38,9 @@ _G.VERSION = "1.0.5"
 PRODUCT_KEY = "XXXXXXXXXXXXXXXXXXXXXX"
 
 
-
+#### 4.烧写代码
+说明：完成以上3步配置，烧录代码目录所有.lua尾缀的代码，即可正常运行；
+目录：FairyCloud_AIR780EGRL_PUBLIC/code/
 
 ## 示例教程
 
