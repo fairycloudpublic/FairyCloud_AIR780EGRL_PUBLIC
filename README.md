@@ -6,17 +6,19 @@ AIR780EG定位器-硬件代码;欢迎交流：QQ群：630017549，个人微信�
 FairyCloud_AIR780EGRL_PUBLIC/code/
 
 
-### 配置文件目录
-FairyCloud_AIR780EGRL_PUBLIC/code/projectConfig.lua
-
-
 ### 配置文件说明
-#### 1.PRODUCT_KEY
-说明：用于硬件FOTA升级，不用合宙的FOTA可以不做设置；自行到 iot.openluat.com 创建项目,获取正确的项目id；
 
-目录：FairyCloud_AIR780EGRL_PUBLIC/code/fota.lua
+#### 1.appkey、secretkey
+说明：通信使用的秘钥，用于连接到物联网平台，直接问管理员获取即可；
 
-PRODUCT_KEY = "XXXXXXXXXXXXXXXXXXXXXX"
+目录：FairyCloud_AIR780EGRL_PUBLIC/code/projectConfig.lua
+
+-- 以下3个参数必须配置
+_G.server_api = "" 	--服务器信息，联系平台管理员获取
+
+_G.appkey = ""			--用户的appkey，联系平台管理员获取
+
+_G.secretkey = ""		--用户的secretkey,联系平台管理员获取
 
 
 #### 2.VERSION
@@ -27,25 +29,13 @@ PRODUCT_KEY = "XXXXXXXXXXXXXXXXXXXXXX"
 _G.VERSION = "1.0.5"
 
 
-#### 3.appkey、secretkey
-说明：通信使用的秘钥，用于连接到物联网平台，直接问管理员获取即可；
+#### 3.PRODUCT_KEY
+说明：用于硬件FOTA升级，不用合宙的FOTA可以不做设置；自行到 iot.openluat.com 创建项目,获取正确的项目id；
 
-目录：FairyCloud_AIR780EGRL_PUBLIC/code/projectConfig.lua
+目录：FairyCloud_AIR780EGRL_PUBLIC/code/fota.lua
 
-_G.appkey = "XXXXXXXXXXXX"
+PRODUCT_KEY = "XXXXXXXXXXXXXXXXXXXXXX"
 
-_G.secretkey = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
-
-
-
-#### 4.mqttserverip、mqttserverport
-说明：mqtt地址和端口，用于连接到物联网平台，直接问管理员获取即可；
-
-目录：FairyCloud_AIR780EGRL_PUBLIC/code/projectConfig.lua
-
-_G.mqttserverip = "XXXXXXXXXXXX"
-
-_G.mqttserverport = xxxx
 
 
 
