@@ -8,38 +8,23 @@ FairyCloud_AIR780EGRL_PUBLIC/code/
 
 ### 配置文件说明
 
-#### 1.appkey、secretkey
-说明：通信使用的秘钥，用于连接到物联网平台，直接问管理员获取即可；
+#### 1.server_api、appkey、secretkey
+说明：通信使用的秘钥信息，用于连接到物联网平台，直接问管理员获取即可；
 
 目录：FairyCloud_AIR780EGRL_PUBLIC/code/projectConfig.lua
 
--- 以下3个参数必须配置
+-- ①精灵云(fairycloud)： 3个参数--必配--⭐️⭐️⭐️联系平台管理员获取⭐️⭐️⭐️
 
-_G.server_api = "" 	--服务器信息，联系平台管理员获取
+_G.server_api = ""
 
-_G.appkey = ""			--用户的appkey，联系平台管理员获取
+_G.appkey = ""
 
-_G.secretkey = ""		--用户的secretkey,联系平台管理员获取
-
-
-#### 2.VERSION
-说明：当前软件的版本号，自行设置/修改；
-
-目录：FairyCloud_AIR780EGRL_PUBLIC/code/main.lua
-
-_G.VERSION = "1.0.5"
+_G.secretkey = ""
 
 
-#### 3.PRODUCT_KEY
-说明：用于硬件FOTA升级，不用合宙的FOTA可以不做设置；自行到 iot.openluat.com 创建项目,获取正确的项目id；
 
-目录：FairyCloud_AIR780EGRL_PUBLIC/code/fota.lua
-
-PRODUCT_KEY = "XXXXXXXXXXXXXXXXXXXXXX"
-
-
-#### 4.烧写代码
-说明：完成以上3步配置，烧录代码目录所有.lua尾缀的代码，即可正常运行；
+#### 2.烧写代码
+说明：完成以上配置，烧录代码目录所有.lua尾缀的代码，即可正常运行；
 
 目录：FairyCloud_AIR780EGRL_PUBLIC/code/
 
@@ -49,7 +34,7 @@ PRODUCT_KEY = "XXXXXXXXXXXXXXXXXXXXXX"
 [【AIR780EG定位器，小程序/web远程查看-哔哩哔哩】](https://b23.tv/LC0sZ2T)
 
 ### 说明文档
-[【外部】精灵物联网各项目汇总](https://gv9jqt8gpcb.feishu.cn/docx/DAJGdExvZoZBA3xuAogc53ohnxg?from=from_copylink)
+[【外部】AIR780EG定位器说明](https://gv9jqt8gpcb.feishu.cn/docx/DkSqdCVv0otmb1xAD7Gc4iB8nfK)
 
 ### 实物图片
 ![image](https://github.com/fairycloudpublic/FairyCloud_AIR780EGRL_PUBLIC/blob/main/photo1.png)
