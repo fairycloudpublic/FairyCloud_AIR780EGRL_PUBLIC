@@ -1,24 +1,19 @@
--- sys库是标配
 _G.sys = require("sys")
---[[特别注意, 使用mqtt库需要下列语句]]
 _G.sysplus = require("sysplus")
 require"projectConfig"
---require"ntp"
+VERSION = "1.0.0"
 
 local mqttInMsg = require("mqttInMsg")
-
+ 
 local ready = false
 
 local function cbFnc(body)
   
     if  body then
         local data = body
-        -- log.info("testHttp.cbFnc","bodyLen="..body)
 
         local tjsondata,result,errinfo = json.decode(body)
         if result and type(tjsondata)=="table" then
-            -- log.info("status:", tjsondata["status"])
-            -- log.info("msg:",  tjsondata["msg"])
 
             --开始数据解析
             local status = tjsondata["status"]
@@ -26,9 +21,7 @@ local function cbFnc(body)
             local msg = tjsondata["msg"];
 
             if status then
-                -- body
                 local  data = tjsondata["data"]
-
                 _G.SRCCID = data["cid"];
                 _G.mqtt_mqttClientId = data["mqttClientId"];
                 _G.mqtt_username = data["username"];
@@ -36,9 +29,24 @@ local function cbFnc(body)
                 _G.mqtt_mqttHostUrl = data["mqttHostUrl"];
                 _G.mqtt_port = data["port"];
 
+                _G.mqtt_pub_topic = data["mqtt_pub_topic"];
+                _G.mqtt_sub_topic = data["mqtt_sub_topic"];
+                _G.combinecontrollurl = data["combinecontrollurl"];
+                _G.logFlag = data["logFlag"];
+                _G.vbat_max = data["vbat_max"];
+                _G.vbat_min = data["vbat_min"];
 
-                log.info('SRCCID',SRCCID )
+                local  c_devicemodel = data["devicemodel"]
 
+                _G.devicemodel = c_devicemodel["devicemodel"];
+                _G.update_time = c_devicemodel["update_time"];
+                _G.deeprest_time = c_devicemodel["deeprest_time"];
+                _G.cmd_ext = c_devicemodel["cmd_ext"];
+
+                if (devicemodel == "restdeep_platequery" and cmd_ext == 'no') then
+                    log.info('拉取配置成功，马上进入睡眠',devicemodel)
+                    sys.publish("REST_SEND_RESTDEEP")
+                end
             else
                 -- body
                 log.info('msg:',msg )
@@ -102,22 +110,8 @@ function dataToTimeStamp(dataStr)
     return result
 end
 
---------------------------------------------------
--- socket.sntp()
-
--- sys.subscribe("NTP_UPDATE", function()
--- 	log.info("sntp", "time", os.date())
--- end)
-
--- sys.subscribe("NTP_ERROR", function()
--- 	log.info("socket", "sntp error")
--- 	socket.sntp()
--- end)
-
---------------------------------------------------
 
 --启动MQTT客户端任务
--- function getDeviceInfo()
 sys.taskInit(function()
 
     -- 默认都等到联网成功
@@ -130,6 +124,8 @@ sys.taskInit(function()
        
         local imei = mobile.imei()
         log.info('imei',imei)
+        _G.aliyuncs_imei = imei
+
         local maxtar = string.upper(crypto.md5(imei,#imei))
         local  macstr =  string.sub(maxtar, 1, 12)
         local  mac = string.sub(macstr, 1, 2)
@@ -144,35 +140,16 @@ sys.taskInit(function()
             -- body
             local did = "4ee1562359b5bb25d1095c21819d388a"
             local nonce="c0b0a3906c19dde0995abbd061168c0a"
-            -- local signt=os.time() ..''
             local tm = rtc.get()
-            --local tmm = os.date()
-
-            -- log.info("------------>tm", json.encode(tm))
-            -- log.info("------------>tmm", json.encode(tmm))
-
-            --local reporttime=tmm
- 
             local reporttime = string.format("%04d-%02d-%02d %02d:%02d:%02d", tm.year, tm.mon, tm.day, tm.hour, tm.min, tm.sec)
-            --local reporttime=os.date("%Y-%m-%d %H:%M:%S")
             log.info("reporttime:",reporttime)
 
             local signt= dataToTimeStamp(reporttime) .. "000"
-
             local str5 = "api/getDeviceByMac_appkey=" .. appkey.."_did=".. did.. "_mac=" .. mac .."_nonce="..nonce.."_signt="..signt.."_version=".. version.."_".. secretkey;
-            
-            log.info("str5:",str5)
-
             local str6 = string.urlEncode(str5)
-            log.info("str6:",str6)
-
             local sign =  string.lower (crypto.md5(str6,#str6))
-            log.info("sign:",sign)
-
             local str = string.format('%s?appkey=%s&did=%s&mac=%s&nonce=%s&signt=%s&version=%s&sign=%s',server_api,appkey,did,mac,nonce,signt,version,sign)
             log.info("str:",str)
-
-            -- http.request("GET",str,nil,nil,nil,nil,cbFnc)
 
             local code, headers, body = http.request("GET",str,nil,nil,nil,nil,cbFnc).wait()
             log.info("http.get", code, headers, body)
@@ -184,16 +161,22 @@ sys.taskInit(function()
 
         log.info('SRCCID',SRCCID)
 
-        if  SRCCID ~= "" then
+        if  not (devicemodel == "restdeep_platequery" and cmd_ext == 'no') then
+            log.info('拉取数据成功，即将上报数据',devicemodel,cmd_ext)
+            log.info("------------>devicemodel",devicemodel)
+
+             -- 打开GPS电源开关
+            pm.power(pm.GPS, true)   --780EG打开  EP注释掉
+            log.info('打开GPS开关')
+
+
             local imei = mobile.imei()
-            log.info('imeia',imei)
+            -- log.info('imeia',imei)
 
             --_G.mqttc = mqtt.create(nil, mqtt_mqttHostUrl, mqtt_port, false, ca_file)
             _G.mqttc = mqtt.create(nil, mqtt_mqttHostUrl, mqtt_port, false, ca_file)
 
-         
-            --mqttc:auth(SRC2C2WLB00000025,Gunter,qwerty123) -- client_id必填,其余选填
-            mqttc:auth(mqtt_mqttClientId,mqtt_username,mqtt_passwd,true) --JSR1454DMY
+            mqttc:auth(mqtt_mqttClientId,mqtt_username,mqtt_passwd,true)
             mqttc:keepalive(60) -- 默认值240s
             mqttc:autoreconn(true, 6000) -- 自动重连机制
 
@@ -205,7 +188,7 @@ sys.taskInit(function()
                     mqttInMsg.init()
 
                     sys.publish("mqtt_conack")
-                    mqtt_client:subscribe({[topic_server_home..SRCCID]=0, [topic_sys_message]=0})--单主题订阅
+                    mqtt_client:subscribe({[mqtt_sub_topic]=0})--单主题订阅
 
                     -- mqtt_client:subscribe({[topic1]=1,[topic2]=1,[topic3]=1})--多主题订阅
                 elseif event == "recv" then
@@ -223,25 +206,20 @@ sys.taskInit(function()
             -- mqttc自动处理重连, 除非自行关闭
             mqttc:connect()
             sys.waitUntil("mqtt_conack")
---            while true do
 
-                -- 演示等待其他task发送过来的上报信息
---                local ret, topic, data, qos = sys.waitUntil("APP_SOCKET_SEND_DATA", 300000)
---                if ret then
-                    -- 提供关闭本while循环的途径, 不需要可以注释掉
---                    if topic == "close" then break end
---                   mqttc:publish(topic, data, qos)
---                end
-                -- 如果没有其他task上报, 可以写个空等待
-            sys.wait(60000000)
---            end
+            -- 如果没有其他task上报, 可以写个空等待 12H的等待  24H的不行
+            while true do
+                sys.wait(43200000)
+            -- sys.wait(86400000)
+            end
+
             mqttc:close()
             mqttc = nil
-
+        else
+           
+            sys.wait(43200000)
         end
 
     end
 
 end)
-
---ntp.timeSync()

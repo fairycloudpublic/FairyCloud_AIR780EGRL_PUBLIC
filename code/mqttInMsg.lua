@@ -2,14 +2,15 @@
 
 _G.sys = require("sys")
 _G.sysplus = require("sysplus")
-_G.GPS_Updata=false
 require"projectConfig"
 require "gnss"
 require "sleep"
 require "vbat_adc"
 
--- 保存时间戳6位
-local Timestamp = {0x17,0,0,0,0,0}
+
+local nodata_Count = 0
+local lbs_Count = 0
+local gps_Count = 0
 
 -----------------MQTT OUT---------------
  --数据发送的消息队列
@@ -18,9 +19,17 @@ local msgQueue = {}
 local function insertMsg(topic,payload,qos,user)
     sys.taskInit(function()
         if mqttc and mqttc:ready() then
-            local pkgid = mqttc:publish(mqtt_pub_topicsss..SRCCID, payload, 0)
-            sys.timerStart(autoDataStatus,10000)  
-            sys.waitUntil(_G.GPS_Ggt_Topic,10*1000)  
+            local pkgid 
+            
+            if server_select == "fairycloud" then
+                pkgid = mqttc:publish(mqtt_pub_topic, payload, 0)
+            else
+                pkgid = mqttc:publish(aliyuncs_pub_topic, payload, 0)
+            end
+
+            -- TBD S定时上报数据
+            sys.timerStart(autoDataStatus,_G.update_time)  
+            sys.waitUntil(_G.GPS_Ggt_Topic,1*1000)  
             sys.publish(_G.Updata_OK)
         end
 		
@@ -29,7 +38,7 @@ local function insertMsg(topic,payload,qos,user)
 end
 
 local function pubQos0TestCb(result)
-    log.info("mqttOutMsg.pubQos0TestCb",result)
+    log.info("mqttOutMsg.pubQos0TestCbXXXXXXXXXXXXXXXXXXXXXXXXX",result)
     if result then  sys.timerStart(autoDataStatus,1000) end
 end
 
@@ -66,51 +75,9 @@ local function random_range(howsmall, howbig)
 end
 
 
--- 日期时间转时间戳 注意输出格式是xxxx-02-12 09:30:12
--- 参数可以是  “xxxx-02-12 09:30:12” 或者 表{2019,2,12,9,30,12}
-function dataToTimeStamp(dataStr)
-    local result = -1
-    local tempTable = {}
-
-    if dataStr == nil then
-        error("传递进来的日期时间参数不合法")
-    elseif type(dataStr) == "string" then
-        dataStr = trim(dataStr)
-        for v in string.gmatch(dataStr, "%d+") do
-            tempTable[#tempTable + 1] = v
-        end
-    elseif type(dataStr) == "table" then
-        tempTable = dataStr
-    else
-        error("传递进来的日期时间参数不合法")
-    end
-    tempTable[4] = tonumber(tempTable[4]) - 8;
-    result = os.time({
-        day = tonumber(tempTable[3]),
-        mon = tonumber(tempTable[2]),
-        year = tonumber(tempTable[1]),
-        hour = tonumber(tempTable[4]),
-        min = tonumber(tempTable[5]),
-        sec = tonumber(tempTable[6])
-    })
-    return result
-end
-
--- socket.sntp()
-
--- sys.subscribe("NTP_UPDATE", function()
--- 	log.info("sntp", "time", os.date())
--- end)
-
--- sys.subscribe("NTP_ERROR", function()
--- 	log.info("socket", "sntp error")
--- 	socket.sntp()
--- end)
-
 -- 10s自动上报数据 默认
 function autoDataStatus()
 
-    
     local tmm1 = os.date()
     local tmm2 = os.date("%Y-%m-%d %H:%M:%S")
     local tmm3 = os.date("*t")
@@ -119,44 +86,51 @@ function autoDataStatus()
     local tjsondata,result,errinfo = json.decode(REPORT_DATA_TEMPLATE)
     if result and type(tjsondata)=="table" then
     
-    
-        tjsondata["deviceid"] = SRCCID;
-        tjsondata["cid"] = SRCCID;
-
         local reporttime=os.date("%Y-%m-%d %H:%M:%S")
         local times=os.date("%Y-%m-%d %H:%M:%S")
-        --local times = string.format("%04d-%02d-%02d %02d:%02d:%02d", tm.year, tm.mon, tm.day, tm.hour, tm.min, tm.sec)
-        --local reporttime = string.format("%04d-%02d-%02d %02d:%02d:%02d", tm.year, tm.mon, tm.day, tm.hour+8, tm.min, tm.sec)
-        log.info("------------>reporttime",reporttime)
-        -- log.info("------------>tmm1",tmm1)
-        -- log.info("------------>tmm2",tmm2)
-        -- log.info("------------>tmm3",tmm3)
         tjsondata["reporttime"] = reporttime;
 
-        -- 新增签名算法
-        local did = string.lower(crypto.md5(reporttime.."0"..random(1000)))
-        local cid = SRCCID
-        -- local nonce = string.lower(crypto.md5(reporttime.."0"..random(1000)))
-        -- local signt= dataToTimeStamp(times) .. "000"
-        -- local str6 =  did.."_"..cid.."_"..nonce.."_"..signt.."_"..appkey.."_"..secretkey
-        -- local sign =  string.lower (crypto.md5(str6,#str6))
-		
-        -- tjsondata["appkey"] = appkey;
-        -- tjsondata["nonce"] = nonce;
-        -- tjsondata["signt"] = signt;
-        -- tjsondata["sign"] = sign;
-        -- tjsondata["temperature"] = "25.4";
+        if server_select == "fairycloud" then
+            if logFlag then
+                tjsondata["cid"] = SRCCID;
+            end
+        else
+            tjsondata["imei"] = aliyuncs_imei;
+        end
 
-        -- tjsondata["version"] = version;
-        tjsondata["did"] = did;
+        if ((_G.data_from == "LBS") or (_G.data_from == "GPS")) then
+            tjsondata["longitude"] = _G.old_longitude;
+            tjsondata["latitude"] = _G.old_latitude;
 
-        tjsondata["longitude"] = _G.sslng;
-        tjsondata["latitude"] = _G.sslat;
-        tjsondata["log"] = locc;
-        tjsondata["data_from"]=data_from;
-        tjsondata["electricity"]=svbat;
-        tjsondata["version"]= _G.VERSION;
-     
+            -- 上报指令带上扩展命令回复
+            if _G.cmd_ext == "platformquery" then
+                tjsondata["cmd_ext"] = _G.cmd_ext;
+                _G.cmd_ext = "no";
+            end
+        end
+
+
+        -- tjsondata["temperature"] = _G.temperature;
+        -- tjsondata["humidity"] = _G.humidity;
+
+        tjsondata["vbat"]=  _G.vbat;
+        tjsondata["electricity"]=  _G.electricity;
+        tjsondata["version"]= _G.version;
+        tjsondata["data_from"] = _G.data_from;
+
+        tjsondata["gprs"] = _G.Mobile_Ss;
+        tjsondata["satellite"] = _G.Gnss_Ss;
+        
+        if logFlag then
+            local did = string.lower(crypto.md5(reporttime.."0"..random(1000)))
+            tjsondata["did"] = did;
+            tjsondata["log"] = locc;
+            tjsondata["totalsatellite"] = _G.SatsNum;
+            tjsondata["imei"] = aliyuncs_imei;
+
+        end
+
+
     else
         log.info("testJson error",errinfo)
     end
@@ -164,8 +138,45 @@ function autoDataStatus()
 
     pubQos0Send(json.encode(tjsondata)) --发送数据
 
-    wdt.init(25000) -- 初始化watchdog设置为9s
-    sys.timerLoopStart(wdt.feed, 21000) -- 3s喂一次狗
+    wdt.init(65000) -- 初始化watchdog设置为9s
+    sys.timerLoopStart(wdt.feed, 60000) -- 21s喂一次狗
+
+
+    -- 休眠模式和次数判断
+    if devicemodel =="restdeep_deviceupdate" or devicemodel =="restdeep_platequery"  then
+        
+        -- 获取到了定位的数据
+        if ( _G.data_from == "GPS") then
+            gps_Count = gps_Count+1;
+            log.info('GPS上报次数：gps_Count:',gps_Count )
+
+        elseif ((_G.data_from == "LBS") ) then
+            lbs_Count = lbs_Count+1;
+            log.info('LBS上报次数：lbs_Count:',lbs_Count )
+
+        else
+            lbs_Count = 0
+            gps_Count = 0
+            nodata_Count = nodata_Count + 1;
+            log.info('无数据上报次数：nodata_Count:',nodata_Count )
+
+        end
+
+        -- LBS:1分40S左右获取 GPS：30S  无信号：90S
+        -- if gps_Count >=3 or lbs_Count >=5 or nodata_Count >=9 then
+        if gps_Count >=1 or lbs_Count >=1 or nodata_Count >=9 then
+            gps_Count = 0
+            lbs_Count = 0
+            nodata_Count = 0
+            -- 断开MQTT
+            mqttc:close()
+            sys.publish("REST_SEND_RESTDEEP")
+        end
+        log.info("------------> MSGdevicemodel",devicemodel)
+
+
+
+    end
 
 end
 
@@ -173,8 +184,13 @@ end
 function pubQos0Send(sedData)
 
     log.info("sedData:",sedData)
-    
-    insertMsg(mqtt_pub_topicsss..SRCCID,sedData,0,{cb=pubQos0TestCb})
+    if server_select == "fairycloud" then
+        insertMsg(mqtt_pub_topic,sedData,0,{cb=pubQos0TestCb})
+    else
+        insertMsg(aliyuncs_pub_topic,sedData,0,{cb=pubQos0TestCb})
+    end
+
+
 end
 
 --- 初始化“MQTT客户端数据发送”
@@ -192,125 +208,83 @@ function unInit()
 end
 
 
---- MQTT客户端数据发送处理
--- @param mqttClient，MQTT客户端对象
--- @return 处理成功返回true，处理出错返回false
--- @usage mqttOutMsg.proc(mqttClient)
---function sedproc(mqttClient)
---    while #msgQueue>0 do
---        local outMsg = table.remove(msgQueue,1)
---        local result = mqttClient:publish(outMsg.t,outMsg.p,outMsg.q)
---        if outMsg.user and outMsg.user.cb then outMsg.user.cb(result,outMsg.user.para) end
---        if not result then return end
---    end
---    return true
---end
+function CLIEND_SEND_DATA()
+    sys.taskInit(function()
+        
+        autoDataStatus()
+       
+    end)
 
+end
 -----------------MQTT IN------------------------------------------
---[[
+
 --- MQTT客户端数据接收处理
 function SERVER_SEND_DATA(topic, payload)
 
-    if topic == topic_server_home..SRCCID then
+    if topic == mqtt_sub_topic then
 
         local tjsondata,result,errinfo = json.decode(payload)
         if result and type(tjsondata)=="table" then
 
             --开始数据解析
             local cmdType = tjsondata["cmdtype"];
-            local controll = "cmd_controll";
-            local status = "cmd_status";
-            local statusack = "cmd_statusack";
+            local cmdcontroll = "cmd_controll";
+            local cmdstatus = "cmd_status";
+            local cmdstatusack = "cmd_statusack";
             local did = tjsondata["did"];
             local tm = rtc.get()
         
-            if cmdType == controll then
+
+
+            if cmdType == cmdcontroll then
             
-                --log.info("cmd_controll");
                 local cmddata = tjsondata["cmddata"];
                 local sensorname = cmddata["sensorname"];
                 local sensorcmd= cmddata["sensorcmd"];
-                ----[
-				if (sensorname == "curtain_1") then
-				    log.info(sensorcmd);
+                local extdata= cmddata["extdata"];
+          
+                if (sensorname == "status") then
                     if(sensorcmd == "open") then
-					
-                        uart.write(uartid,'1401')
-						log.info('1401')
-					elseif(sensorcmd == "close") then
-					
-						uart.write(uartid,'1400')
-						log.info('1400')
-					else
-                        log.info(sensorcmd);
-                    end
-				elseif (sensorname == "curtain_2") then 
-                    log.info(sensorcmd);
-                    if(sensorcmd == "open") then
-					
-                        uart.write(uartid,'1501')
-						log.info('1501')
-					elseif(sensorcmd == "close") then
-					
-						uart.write(uartid,'1500')
-						log.info('1500')
-					else
-                        log.info(sensorcmd);
-                    end
-					
-				elseif (sensorname == "curtain_3") then 
-                    log.info(sensorcmd);
-                    if(sensorcmd == "open") then
-					
-                        uart.write(uartid,'1601')
-						log.info('1601')
-					elseif(sensorcmd == "close") then
-					
-						uart.write(uartid,'1600')
-						log.info('1600')
-					else
-                        log.info(sensorcmd);
-                    end
-					
-				elseif (sensorname == "status") then
-
-                    if(sensorcmd == "open") then
-                        
                         log.info("status");
-                          -- 基础数据查询
-                        autoDataStatus()
+                        -- 基础数据查询 底部默认会上报数据，不用在这里单独设置
+                        -- autoDataStatus()
+                    end
+                elseif (sensorname == "restart") then
+                    if(sensorcmd == "open") then
+                        log.info("restart");
+                        pm.reboot()
+                    end
+                elseif (sensorname == "poweroff") then
+                    if(sensorcmd == "open") then
+                        log.info("------------>poweroff");
+                        pm.shutdown()
+                    end
+                elseif (sensorname == "deviceconfig") then
+                    if(sensorcmd == "open") then
+                        log.info("get deviceconfig");
+                        _G.devicemodel = extdata["devicemodel"];
+                        _G.update_time = extdata["update_time"];
+                        _G.deeprest_time = extdata["deeprest_time"];
+
+                        if devicemodel ~= 'awake_normal' then
+                            sys.publish("REST_SEND_RESTDEEP")
+                        end
+
                     end
                 else
                     log.info(sensorname);
                 end	
-                ----]
+       
                 ----进行远控数据返回操作
                local sdsondata,result,errinfo = json.decode(REPORT_CONTROLLACK_TEMPLATE)
                 if result and type(sdsondata)=="table" then
 
                     local tm = rtc.get()
-
                     local reporttime = string.format("%04d-%02d-%02d %02d:%02d:%02d", tm.year, tm.mon, tm.day, tm.hour+8, tm.min, tm.sec)
                     
                     sdsondata["reporttime"] = reporttime;
                     sdsondata["cid"] = SRCCID;
                     sdsondata["did"] = did;
-                    sdsondata["project"] = project;
-					sdsondata["projectkey"] = projectkey;
-                      -- 新增签名算法
-                    -- local did = "4ee1562359b5bb25d1095c21819d388a"
-                    local cid = SRCCID
-                    local nonce="c0b0a3906c19dde0995abbd061168c0a"
-                    local signt= dataToTimeStamp(reporttime) .. "000"
-                    local str6 =  did.."_"..cid.."_"..nonce.."_"..signt.."_"..appkey.."_"..secretkey
-                    local sign =  string.lower (crypto.md5(str6,#str6))
-                    sdsondata["appkey"] = appkey;
-                    sdsondata["nonce"] = nonce;
-                    sdsondata["signt"] = signt;
-                    sdsondata["sign"] = sign;
-                    sdsondata["version"] = version;
-
-                    
 
                     pubQos0Send(json.encode(sdsondata)) --发送数据
 
@@ -321,12 +295,12 @@ function SERVER_SEND_DATA(topic, payload)
 				autoDataStatus()
 				
                 --结束发送
-            elseif cmdType == status then
+            elseif cmdType == cmdstatus then
                 log.info("cmd_status");
                     -- 基础数据查询
                     autoDataStatus()
-        
-            elseif cmdType == statusack then
+
+            elseif cmdType == cmdstatusack then
                 log.info("cmd_statusack");
         
             else
@@ -340,16 +314,19 @@ function SERVER_SEND_DATA(topic, payload)
             log.info("testJson.decode error",errinfo)
         end
 
-    elseif data.topic == topic_sys_message then
-        -- body
-
     end
 
 end
---]]
+
+-- 自动发送数据到服务器
+sys.subscribe("CLIEND_SEND_DATA",CLIEND_SEND_DATA)
+
+-- 订阅GPS获取成功的消息
+sys.subscribe("GPS_GET_SUCCESS",CLIEND_SEND_DATA)
+
 
 -- 订阅 
---sys.subscribe("SERVER_SEND_DATA",SERVER_SEND_DATA)
+sys.subscribe("SERVER_SEND_DATA",SERVER_SEND_DATA)
 
 --手动返回一个table，包含了上面的函数
 return {
