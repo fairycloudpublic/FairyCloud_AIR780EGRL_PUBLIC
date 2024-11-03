@@ -13,7 +13,7 @@ FairyCloud_AIR780EGRL_PUBLIC/code/
 
 目录：FairyCloud_AIR780EGRL_PUBLIC/code/projectConfig.lua
 
--- ①精灵云(fairycloud)： 3个参数--必配--⭐️⭐️⭐️联系平台管理员获取⭐️⭐️⭐️
+-- ①精灵物联网(fairycloud)： 3个参数--必配--⭐️⭐️⭐️联系平台管理员获取⭐️⭐️⭐️
 
 _G.server_api = ""
 

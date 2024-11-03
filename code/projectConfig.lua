@@ -1,7 +1,7 @@
 -------------------------------------- 项目全局配置文件--------------------------------------
 
 -- 以下三选一，然后开始配置    【阿里云、自建服务器 代码需要定制化开发】
--- ①精灵云 		fairycloud
+-- ①精灵物联网 		fairycloud
 -- ②阿里云 		aliyuncs
 -- ③自建服务器 	privatecloud
 
@@ -10,7 +10,7 @@ _G.server_select = "fairycloud"
 --_G.server_select = "privatecloud"
 
 
--- ①精灵云(fairycloud)： 3个参数--必配--⭐️⭐️⭐️联系平台管理员获取⭐️⭐️⭐️
+-- ①精灵物联网(fairycloud)： 3个参数--必配--⭐️⭐️⭐️联系平台管理员获取⭐️⭐️⭐️
 _G.server_api = ""
 _G.appkey = ""
 _G.secretkey = ""
