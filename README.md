@@ -43,6 +43,8 @@ _G.secretkey = ""
 
 ![image](https://github.com/fairycloudpublic/FairyCloud_AIR780EGRL_PUBLIC/blob/main/photo3.png)
 
+![image](https://github.com/fairycloudpublic/FairyCloud_AIR780EGRL_PUBLIC/blob/main/photo4.png)
+
 
 ## 版权说明
 仅供大家学习与参考，请勿用于非法用途，未经版权所有权人书面许可，不能自行用于商业用途。如需作商业用途，请与原作者联系。
